@@ -1,4 +1,4 @@
-import React, {useCallback, useReducer, useRef} from "react";
+import React, {useCallback, useReducer, useEffect, useRef, useState} from "react";
 import { useTodos } from './useTodos';
 
 const Heading = (props: { title: string }) => {
@@ -8,6 +8,20 @@ const Heading = (props: { title: string }) => {
     </h2>
   );
 };
+
+function UL<T>({ items, render, itemClick }: {
+  items: T[],
+  itemClick: (item: T) => void;
+  render: (item: T) => React.ReactNode;
+}) {
+  return(
+    <ul>
+      {items.map((item, index) => (
+        <li key={index} onClick={() => itemClick(item)}>{render(item)}</li>
+      ))}
+    </ul>
+  )
+}
 
 function App() {
   const onListClick = useCallback((item: string) => {
@@ -32,17 +46,22 @@ function App() {
         <input type="text" ref={newTodoRef} />
         <button onClick={onAddTodo}>Add Todo</button>
       </div>
-      {todos.map((todo) => (
-        <div key={todo.id}>
-          {todo.text}
-          <button
-            onClick={() => removeTodo(todo.id)
-            }
-          >
-            Remove
-          </button>
-        </div>
-      ))}
+      <UL
+        items={todos}
+        itemClick={(item) => alert(item.id)}
+        render={ (todo) => (
+          <>
+            {todo.text}
+            <button
+              onClick={() => removeTodo(todo.id)
+              }
+            >
+              Remove
+            </button>
+          </>
+        )}
+      />
+    
     </div>
   );
 }

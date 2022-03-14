@@ -1,5 +1,5 @@
 import React, {useCallback, useReducer, useEffect, useRef, useState} from "react";
-import { useTodos } from './useTodos';
+import { useTodos, useAddTodo, useRemoveTodo, TodosProvider } from './useTodos';
 
 const Heading = (props: { title: string }) => {
   return (
@@ -28,9 +28,10 @@ function App() {
     alert(item);
   }, []);
   const newTodoRef = useRef<HTMLInputElement>(null);
-  const { todos, addTodo, removeTodo } = useTodos([
-    {id: 0, text: 'Hey There', done: false}
-  ])
+
+  const todos = useTodos();
+  const addTodo = useAddTodo();
+  const removeTodo = useRemoveTodo();
 
   const onAddTodo = useCallback(() => {
     if(newTodoRef.current) {
@@ -66,4 +67,33 @@ function App() {
   );
 }
 
-export default App;
+const JustShowTodos = () => {
+  const todos = useTodos();
+  return (
+    <UL
+        items={todos}
+        itemClick={(item) => alert(item.id)}
+        render={ (todo) => (
+          <>
+            {todo.text}
+            
+          </>
+        )}
+      />
+  )
+}
+
+const AppWrapper = () => (
+  <TodosProvider initialTodos={[
+    {id: 0, text: 'Hey There', done: false}
+  ]}>
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "50% 50%",
+    }}>
+      <App></App>
+      <JustShowTodos />
+    </div>
+  </TodosProvider>
+)
+export default AppWrapper;

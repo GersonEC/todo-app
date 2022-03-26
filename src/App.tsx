@@ -1,5 +1,7 @@
 import React, { useCallback, useRef } from "react";
-import { useTodos, useAddTodo, useRemoveTodo, TodosProvider } from "./useTodos";
+import { Provider, useSelector, useDispatch } from "react-redux";
+import store, { selectTodos, addTodo, removeTodo } from "./store";
+import { useTodos, TodosProvider } from "./useTodos";
 
 const Heading = (props: { title: string }) => {
   return (
@@ -29,22 +31,27 @@ function UL<T>({
   );
 }
 
+const initialTodos = [
+  {
+    id: 0,
+    text: "Hey There",
+    done: false,
+  },
+];
+
 function App() {
-  const onListClick = useCallback((item: string) => {
-    alert(item);
-  }, []);
+  const todos = useSelector(selectTodos);
+  const dispatch = useDispatch();
   const newTodoRef = useRef<HTMLInputElement>(null);
 
-  const todos = useTodos();
-  const addTodo = useAddTodo();
-  const removeTodo = useRemoveTodo();
+  // const { todos, addTodo, removeTodo } = useTodos(initialTodos);
 
   const onAddTodo = useCallback(() => {
     if (newTodoRef.current) {
-      addTodo(newTodoRef.current.value);
+      dispatch(addTodo(newTodoRef.current.value));
       newTodoRef.current.value = "";
     }
-  }, []);
+  }, [addTodo]);
 
   return (
     <div style={{ backgroundColor: "gray", height: "100vh" }}>
@@ -59,7 +66,9 @@ function App() {
         render={(todo) => (
           <>
             {todo.text}
-            <button onClick={() => removeTodo(todo.id)}>Remove</button>
+            <button onClick={() => dispatch(removeTodo(todo.id))}>
+              Remove
+            </button>
           </>
         )}
       />
@@ -68,7 +77,7 @@ function App() {
 }
 
 const JustShowTodos = () => {
-  const todos = useTodos();
+  const todos = useSelector(selectTodos);
   return (
     <UL
       items={todos}
@@ -78,7 +87,8 @@ const JustShowTodos = () => {
   );
 };
 
-const AppWrapper = () => (
+{
+  /*const AppWrapper = () => (
   <TodosProvider initialTodos={[{ id: 0, text: "Hey There", done: false }]}>
     <div
       style={{
@@ -90,5 +100,17 @@ const AppWrapper = () => (
       <JustShowTodos />
     </div>
   </TodosProvider>
-);
+    )*/
+}
+
+const AppWrapper = () => {
+  return (
+    <Provider store={store}>
+      <div style={{ display: "grid", gridTemplateColumns: "50% 50%" }}>
+        <App />
+        <JustShowTodos />
+      </div>
+    </Provider>
+  );
+};
 export default AppWrapper;
